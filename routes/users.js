@@ -1,7 +1,8 @@
 const router = require('express').Router()
 const getClient = require('../mongodb.js')
 const bcrypt = require('bcrypt')
-const { restart } = require('nodemon')
+const jwt = require('jsonwebtoken')
+const privateKey = process.env.JWT_PRIVATE_KEY
 
 router.post('/signup', async function(req, res) {
     const client = getClient()
@@ -64,8 +65,8 @@ router.post('/login', async function(req, res) {
         }
 
         if (await bcrypt.compare(req.body.password, user.password)) {
-            // TODO: jwt token
-            res.status(200).send({ message: 'Password is correct' })
+            const token = jwt.sign({ email: user.email }, privateKey, { expiresIn: '1h' })
+            res.status(200).send({ message: 'Password is correct', token })
         } else {
             throw new Error('Invalid e-mail address or password')
         }
