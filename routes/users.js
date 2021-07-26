@@ -4,6 +4,10 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const privateKey = process.env.JWT_PRIVATE_KEY
 
+function signToken(email) {
+    return jwt.sign({ email }, privateKey, { expiresIn: '1h' })
+}
+
 router.post('/signup', async function(req, res) {
     const client = getClient()
 
@@ -33,7 +37,8 @@ router.post('/signup', async function(req, res) {
 
         await users.insertOne({ email: req.body.email, password: hashedPassword })
 
-        res.status(201).send({ message: 'Signup successful' })
+        const token = signToken(req.body.email)
+        res.status(201).send({ message: 'Signup successful', token })
     }
     catch (error) {
         res.status(400).send({ message: error.message })
@@ -65,7 +70,7 @@ router.post('/login', async function(req, res) {
         }
 
         if (await bcrypt.compare(req.body.password, user.password)) {
-            const token = jwt.sign({ email: user.email }, privateKey, { expiresIn: '1h' })
+            const token = signToken(user)
             res.status(200).send({ message: 'Password is correct', token })
         } else {
             throw new Error('Invalid e-mail address or password')
