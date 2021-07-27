@@ -22,11 +22,13 @@ router.post('/signup', async function(req, res) {
             throw new Error('Password must be at least 8 characters long')
         }
 
+        const email = req.body.email.trim().toLowerCase()
+
         await client.connect()
 
         const users = client.db().collection('users')
 
-        const user = await users.findOne({ email: req.body.email })
+        const user = await users.findOne({ email })
 
         if (user) {
             throw new Error('Email is already registered to an user')
@@ -35,9 +37,9 @@ router.post('/signup', async function(req, res) {
         // encrypt password
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
-        await users.insertOne({ email: req.body.email, password: hashedPassword })
+        await users.insertOne({ email, password: hashedPassword })
 
-        const token = signToken(req.body.email)
+        const token = signToken(email)
         res.status(201).send({ message: 'Signup successful', token })
     }
     catch (error) {
@@ -59,18 +61,20 @@ router.post('/login', async function(req, res) {
             throw new Error('Invalid e-mail address or password')
         }
 
+        const email = req.body.email.trim().toLowerCase()
+
         await client.connect()
 
         const users = client.db().collection('users')
 
-        const user = await users.findOne({ email: req.body.email })
+        const user = await users.findOne({ email })
 
         if (!user) {
             throw new Error('Invalid e-mail address or password')
         }
 
         if (await bcrypt.compare(req.body.password, user.password)) {
-            const token = signToken(user)
+            const token = signToken(user.email)
             res.status(200).send({ message: 'Password is correct', token })
         } else {
             throw new Error('Invalid e-mail address or password')
