@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const app = express()
 
 const bodyParser = express.json()
@@ -8,6 +9,8 @@ const usersRoutes = require('./routes/users.js')
 const auth = require('./middleware/auth.js')
 
 const port = process.env.PORT || 8000
+
+app.use(cors())
 
 app.use('/users', usersRoutes)
 
