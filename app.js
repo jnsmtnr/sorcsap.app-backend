@@ -19,12 +19,8 @@ app.get('/', function (_, res) {
 })
 
 // test auth middleware
-app.get('/test', auth, function(req, res) {
-    if (req.user.email === 'test@test.com') {
-        res.status(200).send(true)
-    } else {
-        res.status(400).send(false)
-    }
+app.get('/test', auth, function (req, res) {
+    res.status(200).send(req.user.email)
 })
 
 app.listen(port, function () { console.log(`server listening on port ${port}`) })
