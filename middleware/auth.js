@@ -13,6 +13,10 @@ function auth(req, res, next) {
             email: user.email
         }
 
+        if (user.admin) {
+            req.user.admin = true
+        }
+
         next()
     }
     catch(error) {
@@ -20,4 +24,11 @@ function auth(req, res, next) {
     }
 }
 
-module.exports = auth
+function isAdmin(req, res, next) {
+    if (req.user.admin) {
+        return next()
+    }
+    res.status(403).send({ message: 'User is not admin' })
+}
+
+module.exports = { auth, isAdmin }
