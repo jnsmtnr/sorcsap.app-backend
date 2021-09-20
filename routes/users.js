@@ -4,8 +4,12 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const privateKey = process.env.JWT_PRIVATE_KEY
 
-function signToken(email) {
-    return jwt.sign({ email }, privateKey, { expiresIn: '1h' })
+function signToken(email, isAdmin = false) {
+    const payload = { email }
+    if (isAdmin) {
+        payload.admin = true;
+    }
+    return jwt.sign(payload, privateKey, { expiresIn: '1h' })
 }
 
 router.post('/signup', async function(req, res) {
@@ -74,7 +78,7 @@ router.post('/login', async function(req, res) {
         }
 
         if (await bcrypt.compare(req.body.password, user.password)) {
-            const token = signToken(user.email)
+            const token = signToken(user.email, user.admin)
             res.status(200).send({ message: 'Password is correct', token })
         } else {
             throw new Error('Invalid e-mail address or password')
