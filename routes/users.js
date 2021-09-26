@@ -79,7 +79,14 @@ router.post('/login', async function(req, res) {
 
         if (await bcrypt.compare(req.body.password, user.password)) {
             const token = signToken(user.email, user.admin)
-            res.status(200).send({ message: 'Password is correct', token })
+            const response = {
+                message: 'Password is correct',
+                token
+            }
+            if (user.admin) {
+                response.admin = user.admin
+            }
+            res.status(200).send(response)
         } else {
             throw new Error('Invalid e-mail address or password')
         }
