@@ -10,7 +10,9 @@ const {auth, isAdmin} = require('./middleware/auth.js')
 
 const port = process.env.PORT || 8000
 
-app.use(cors())
+app.use(cors({
+    origin: process.env.ALLOWED_ORIGINS.split(',')
+}))
 
 app.use('/users', usersRoutes)
 
