@@ -108,7 +108,7 @@ router.get('/', auth, isAdmin, async function (req, res) {
 
         const users = client.db().collection('users')
 
-        const allUsers = await users.find({}, { projection: { password: 0 } }).toArray()
+        const allUsers = await users.find().project({ password: 0 }).toArray()
 
         res.send(allUsers);
     }
