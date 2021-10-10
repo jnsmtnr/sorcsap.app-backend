@@ -3,6 +3,7 @@ const getClient = require('../mongodb.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const privateKey = process.env.JWT_PRIVATE_KEY
+const { auth, isAdmin } = require('../middleware/auth.js');
 
 function signToken(email, isAdmin = false) {
     const payload = { email }
@@ -90,6 +91,26 @@ router.post('/login', async function(req, res) {
         } else {
             throw new Error('Invalid e-mail address or password')
         }
+    }
+    catch (error) {
+        res.status(401).send({ message: error.message })
+    }
+    finally {
+        client.close()
+    }
+})
+
+router.get('/', auth, isAdmin, async function (req, res) {
+    const client = getClient()
+
+    try {
+        await client.connect()
+
+        const users = client.db().collection('users')
+
+        const allUsers = await users.find({}, { projection: { password: 0 } }).toArray()
+
+        res.send(allUsers);
     }
     catch (error) {
         res.status(401).send({ message: error.message })
