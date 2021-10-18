@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken')
+import jwt from 'jsonwebtoken'
 
-function auth(req, res, next) {
+export function auth(req, res, next) {
     if (!req.headers.authorization) {
         return res.status(401).send({ message: 'User is not authenticated' })
     }
@@ -24,11 +24,9 @@ function auth(req, res, next) {
     }
 }
 
-function isAdmin(req, res, next) {
+export function isAdmin(req, res, next) {
     if (req.user.admin) {
         return next()
     }
     res.status(403).send({ message: 'User is not admin' })
 }
-
-module.exports = { auth, isAdmin }

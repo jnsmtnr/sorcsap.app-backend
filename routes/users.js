@@ -1,9 +1,10 @@
-const router = require('express').Router()
-const getClient = require('../mongodb.js')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+import { Router } from 'express'
+import getClient from '../mongodb.js'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { auth, isAdmin } from '../middleware/auth.js'
+
 const privateKey = process.env.JWT_PRIVATE_KEY
-const { auth, isAdmin } = require('../middleware/auth.js');
 
 function signToken(email, isAdmin = false) {
     const payload = { email }
@@ -12,6 +13,8 @@ function signToken(email, isAdmin = false) {
     }
     return jwt.sign(payload, privateKey, { expiresIn: '1h' })
 }
+
+const router = Router()
 
 router.post('/signup', async function(req, res) {
     const client = getClient()
@@ -120,4 +123,4 @@ router.get('/', auth, isAdmin, async function (req, res) {
     }
 })
 
-module.exports = router
+export default router
