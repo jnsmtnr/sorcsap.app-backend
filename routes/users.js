@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { ObjectId } from 'mongodb'
 import getClient from '../mongodb.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -16,7 +17,7 @@ function signToken(email, isAdmin = false) {
 
 const router = Router()
 
-router.post('/signup', async function(req, res) {
+router.post('/signup', async function (req, res) {
     const client = getClient()
 
     try {
@@ -58,7 +59,7 @@ router.post('/signup', async function(req, res) {
     }
 })
 
-router.post('/login', async function(req, res) {
+router.post('/login', async function (req, res) {
     const client = getClient()
 
     try {
@@ -114,6 +115,45 @@ router.get('/', auth, isAdmin, async function (req, res) {
         const allUsers = await users.find().project({ password: 0 }).toArray()
 
         res.send(allUsers);
+    }
+    catch (error) {
+        res.status(401).send({ message: error.message })
+    }
+    finally {
+        client.close()
+    }
+})
+
+router.patch('/:id', auth, isAdmin, async function (req, res) {
+    const client = getClient()
+
+    try {
+        await client.connect()
+
+        const users = client.db().collection('users')
+
+        const setObject = {}
+        const unsetObject = {}
+
+        if (req.body.email) {
+            setObject.email = req.body.email
+        }
+
+        if (req.body.password) {
+            setObject.password = await bcrypt.hash(req.body.password, 10)
+        }
+
+        if (req.body.admin) {
+            setObject.admin = true;
+        }
+
+        if (req.body.admin === false) {
+            unsetObject.admin = ''
+        }
+
+        await users.updateOne({ _id: ObjectId(req.params.id) }, { $set: setObject, $unset: unsetObject })
+
+        res.sendStatus(201)
     }
     catch (error) {
         res.status(401).send({ message: error.message })
