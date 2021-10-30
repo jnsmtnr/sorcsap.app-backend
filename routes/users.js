@@ -163,4 +163,24 @@ router.patch('/:id', auth, isAdmin, async function (req, res) {
     }
 })
 
+router.delete('/:id', auth, isAdmin, async function(req, res) {
+    const client = getClient()
+
+    try {
+        await client.connect()
+
+        const users = client.db().collection('users')
+
+        await users.deleteOne({ _id: ObjectId(req.params.id)})
+
+        res.sendStatus(201)
+    }
+    catch (error) {
+        res.status(401).send({ message: error.message })
+    }
+    finally {
+        client.close()
+    }
+})
+
 export default router
