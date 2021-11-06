@@ -1,3 +1,4 @@
+import { ObjectId } from 'bson'
 import { Router } from 'express'
 import { auth, isAdmin } from '../middleware/auth.js'
 import getClient from '../mongodb.js'
@@ -39,6 +40,28 @@ router.post('/', auth, isAdmin, async function (req, res) {
         res.sendStatus(201)
     }
     catch (error) {
+        res.status(401).send({ message: error.message })
+    }
+    finally {
+        client.close()
+    }
+})
+
+router.delete('/:id', auth, isAdmin, async function (req, res) {
+    const client = getClient()
+
+    const { id } = req.params
+
+    try {
+        await client.connect()
+
+        const beers = client.db().collection('beers')
+
+        await beers.deleteOne({ _id: ObjectId(id) })
+
+        res.sendStatus(201)
+    }
+    catch {
         res.status(401).send({ message: error.message })
     }
     finally {
