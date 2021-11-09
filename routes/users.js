@@ -183,32 +183,4 @@ router.delete('/:id', auth, isAdmin, async function(req, res) {
     }
 })
 
-router.post('/ratings', auth, async function(req, res) {
-    const client = getClient()
-
-    const { email } = req.user
-
-    const { id, rating } = req.body
-
-    try {
-        await client.connect()
-
-        const users = client.db().collection('users')
-
-        const { ratings } = await users.findOne({ email })
-
-        if (ratings.find((rating) => rating.id === id)) throw new Error('Rating already exists')
-
-        await users.updateOne({ email }, { $push: { ratings: { id, rating } } })
-
-        res.sendStatus(201)
-    }
-    catch (error) {
-        res.status(400).send({ message: error.message })
-    }
-    finally {
-        client.close()
-    }
-})
-
 export default router
