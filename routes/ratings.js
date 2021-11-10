@@ -60,4 +60,30 @@ router.patch('/:id', auth, async function (req, res) {
     }
 })
 
+router.delete('/:id', auth, async function (req, res) {
+    const client = getClient()
+
+    const { email } = req.user
+    const { id } = req.params
+
+    try {
+        await client.connect()
+
+        const users = client.db().collection('users')
+
+        await users.updateOne(
+            { email },
+            { $pull: { ratings: { id } } }
+        )
+
+        res.sendStatus(201)
+    }
+    catch (error) {
+        res.status(400).send({ message: error.message })
+    }
+    finally {
+        client.close()
+    }
+})
+
 export default router
