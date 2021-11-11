@@ -13,9 +13,9 @@ app.use(cors({
     origin: process.env.ALLOWED_ORIGINS.split(',')
 }))
 
-app.use('/users/ratings', ratingsRoutes)
 app.use('/users', usersRoutes)
 app.use('/beers', beersRoutes)
+app.use('/ratings', ratingsRoutes)
 
 app.get('/', function (_, res) {
     res.send('Hello World')

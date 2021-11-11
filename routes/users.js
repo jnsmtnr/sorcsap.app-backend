@@ -7,8 +7,8 @@ import { auth, isAdmin } from '../middleware/auth.js'
 
 const privateKey = process.env.JWT_PRIVATE_KEY
 
-function signToken(email, isAdmin = false) {
-    const payload = { email }
+function signToken(id, email, isAdmin = false) {
+    const payload = { id, email }
     if (isAdmin) {
         payload.admin = true;
     }
@@ -46,9 +46,9 @@ router.post('/signup', async function (req, res) {
         // encrypt password
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
-        await users.insertOne({ email, password: hashedPassword })
+        const { insertedId } = await users.insertOne({ email, password: hashedPassword })
 
-        const token = signToken(email)
+        const token = signToken(insertedId.toString(), email)
         res.status(201).send({ message: 'Signup successful', token })
     }
     catch (error) {
@@ -83,7 +83,7 @@ router.post('/login', async function (req, res) {
         }
 
         if (await bcrypt.compare(req.body.password, user.password)) {
-            const token = signToken(user.email, user.admin)
+            const token = signToken(user._id.toString(), user.email, user.admin)
             const response = {
                 message: 'Password is correct',
                 token
@@ -151,7 +151,7 @@ router.patch('/:id', auth, isAdmin, async function (req, res) {
             unsetObject.admin = ''
         }
 
-        await users.updateOne({ _id: ObjectId(req.params.id) }, { $set: setObject, $unset: unsetObject })
+        await users.updateOne({ _id: new ObjectId(req.params.id) }, { $set: setObject, $unset: unsetObject })
 
         res.sendStatus(201)
     }
@@ -171,7 +171,7 @@ router.delete('/:id', auth, isAdmin, async function(req, res) {
 
         const users = client.db().collection('users')
 
-        await users.deleteOne({ _id: ObjectId(req.params.id)})
+        await users.deleteOne({ _id: new ObjectId(req.params.id) })
 
         res.sendStatus(201)
     }

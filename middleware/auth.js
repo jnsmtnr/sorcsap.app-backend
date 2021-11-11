@@ -10,7 +10,8 @@ export function auth(req, res, next) {
         const user = jwt.verify(token, process.env.JWT_PRIVATE_KEY)
 
         req.user = {
-            email: user.email
+            email: user.email,
+            id: user.id,
         }
 
         if (user.admin) {
