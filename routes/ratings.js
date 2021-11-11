@@ -1,26 +1,27 @@
 import { Router } from 'express'
 import getClient from '../mongodb.js'
 import { auth } from '../middleware/auth.js'
+import { ObjectId } from 'mongodb'
 
 const router = Router()
 
 router.post('/', auth, async function (req, res) {
     const client = getClient()
 
-    const { email } = req.user
-
-    const { id, rating } = req.body
+    const userId = new ObjectId(req.user.id)
+    const beerId = new ObjectId(req.body.beerId)
+    const beerRating = req.body.rating
 
     try {
         await client.connect()
 
-        const users = client.db().collection('users')
+        const ratings = client.db().collection('ratings')
 
-        const { ratings } = await users.findOne({ email })
+        const rating = await ratings.findOne({ beerId, userId })
 
-        if (ratings.find((rating) => rating.id === id)) throw new Error('Rating already exists')
+        if (rating) throw new Error('Rating already exists')
 
-        await users.updateOne({ email }, { $push: { ratings: { id, rating } } })
+        await ratings.insertOne({ beerId, userId, rating: beerRating })
 
         res.sendStatus(201)
     }
@@ -35,20 +36,16 @@ router.post('/', auth, async function (req, res) {
 router.patch('/:id', auth, async function (req, res) {
     const client = getClient()
 
-    const { email } = req.user
-    const { id } = req.params
+    const userId = new ObjectId(req.user.id)
+    const id = new ObjectId(req.params.id)
     const { rating } = req.body
 
     try {
         await client.connect()
 
-        const users = client.db().collection('users')
+        const ratings = client.db().collection('ratings')
 
-        await users.updateOne(
-            { email }, 
-            { $set: { "ratings.$[beer].rating": rating } }, 
-            { arrayFilters: [{ "beer.id": id }] }
-        )
+        await ratings.updateOne({ _id: id, userId }, { $set: { rating } })
 
         res.sendStatus(201)
     }
@@ -63,18 +60,15 @@ router.patch('/:id', auth, async function (req, res) {
 router.delete('/:id', auth, async function (req, res) {
     const client = getClient()
 
-    const { email } = req.user
-    const { id } = req.params
+    const id = new ObjectId(req.params.id)
+    const userId = new ObjectId(req.user.id)
 
     try {
         await client.connect()
 
-        const users = client.db().collection('users')
+        const ratings = client.db().collection('ratings')
 
-        await users.updateOne(
-            { email },
-            { $pull: { ratings: { id } } }
-        )
+        await ratings.deleteOne({ _id: id, userId })
 
         res.sendStatus(201)
     }
