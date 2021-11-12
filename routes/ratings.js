@@ -80,4 +80,26 @@ router.delete('/:id', auth, async function (req, res) {
     }
 })
 
+router.get('/', auth, async function (req, res) {
+    const client = getClient()
+
+    const userId = new ObjectId(req.user.id)
+
+    try {
+        await client.connect()
+
+        const ratings = client.db().collection('ratings')
+
+        const userRatings = await ratings.find({ userId }).project({ userId: 0 }).toArray()
+
+        res.status(200).send(userRatings)
+    }
+    catch (error) {
+        res.status(400).send({ message: error.message })
+    }
+    finally {
+        client.close()
+    }
+})
+
 export default router
