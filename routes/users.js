@@ -10,7 +10,7 @@ const privateKey = process.env.JWT_PRIVATE_KEY
 function signToken(id, email, isAdmin = false) {
     const payload = { id, email }
     if (isAdmin) {
-        payload.admin = true;
+        payload.admin = true
     }
     return jwt.sign(payload, privateKey, { expiresIn: '1h' })
 }
@@ -114,7 +114,7 @@ router.get('/', auth, isAdmin, async function (req, res) {
 
         const allUsers = await users.find().project({ password: 0 }).toArray()
 
-        res.send(allUsers);
+        res.send(allUsers)
     }
     catch (error) {
         res.status(401).send({ message: error.message })
@@ -144,7 +144,7 @@ router.patch('/:id', auth, isAdmin, async function (req, res) {
         }
 
         if (req.body.admin) {
-            setObject.admin = true;
+            setObject.admin = true
         }
 
         if (req.body.admin === false) {

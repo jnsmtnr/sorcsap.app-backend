@@ -15,7 +15,7 @@ router.get('/', auth, async function (req, res) {
 
         const allBeers = await beers.find().toArray()
 
-        res.send(allBeers);
+        res.send(allBeers)
     }
     catch (error) {
         res.status(401).send({ message: error.message })
