@@ -12,7 +12,7 @@ function signToken(id, email, isAdmin = false) {
     if (isAdmin) {
         payload.admin = true
     }
-    return jwt.sign(payload, privateKey, { expiresIn: '1h' })
+    return jwt.sign(payload, privateKey, { expiresIn: '7d' })
 }
 
 const router = Router()
