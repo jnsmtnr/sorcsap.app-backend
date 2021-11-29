@@ -2,6 +2,7 @@ import express, { json } from 'express'
 import cors from 'cors'
 import usersRoutes from './routes/users.js'
 import beersRoutes from './routes/beers.js'
+import newBeersRoutes from './routes/new-beers.js'
 import ratingsRoutes from './routes/ratings.js'
 
 const port = process.env.PORT || 8000
@@ -15,6 +16,7 @@ app.use(cors({
 
 app.use('/users', usersRoutes)
 app.use('/beers', beersRoutes)
+app.use('/ratings/new-beers', newBeersRoutes)
 app.use('/ratings', ratingsRoutes)
 
 app.get('/', function (_, res) {
