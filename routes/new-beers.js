@@ -1,4 +1,4 @@
-import { ObjectId } from 'bson'
+import { ObjectId } from 'mongodb'
 import { Router } from 'express'
 import { auth, isAdmin } from '../middleware/auth.js'
 import getClient from '../mongodb.js'
@@ -56,6 +56,40 @@ router.post('/', auth, async function (req, res) {
     }
     catch (error) {
         res.status(400).send({ message: error.message })
+    }
+    finally {
+        client.close()
+    }
+})
+
+router.post('/save-new-beer', auth, isAdmin, async function (req, res) {
+    const client = getClient()
+
+    const { name, brewery, alc, type, ratingIds } = req.body
+
+    try {
+        await client.connect()
+
+        const beers = client.db().collection('beers')
+
+        const response = await beers.insertOne({ name, brewery, alc, type })
+
+        const newBeerId = response.insertedId
+
+        const ratings = client.db().collection('ratings')
+
+        await ratings.updateMany(
+            { _id: { $in: ratingIds.map(id => new ObjectId(id)) } },
+            {
+                $set: { beerId: newBeerId },
+                $unset: { name: '', brewery: '', type: '', alc: '' }
+            }
+        )
+
+        res.sendStatus(201)
+    }
+    catch (error) {
+        res.status(401).send({ message: error.message })
     }
     finally {
         client.close()
