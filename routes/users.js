@@ -169,6 +169,10 @@ router.delete('/:id', auth, isAdmin, async function(req, res) {
     try {
         await client.connect()
 
+        const ratings = client.db().collection('ratings')
+
+        await ratings.deleteMany({ userId: new ObjectId(req.params.id) })
+
         const users = client.db().collection('users')
 
         await users.deleteOne({ _id: new ObjectId(req.params.id) })
