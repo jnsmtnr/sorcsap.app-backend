@@ -96,4 +96,32 @@ router.post('/save-new-beer', auth, isAdmin, async function (req, res) {
     }
 })
 
+router.post('/save-existing-beer', auth, isAdmin, async function(req,res) {
+    const client = getClient()
+
+    const { beerId, ratingIds } = req.body
+
+    try {
+        await client.connect()
+
+        const ratings = client.db().collection('ratings')
+
+        await ratings.updateMany(
+            { _id: { $in: ratingIds.map(id => new ObjectId(id)) } },
+            {
+                $set: { beerId },
+                $unset: { name: '', brewery: '', type: '', alc: '' }
+            }
+        )
+
+        res.sendStatus(201)
+    }
+    catch (error) {
+        res.status(401).send({ message: error.message })
+    }
+    finally {
+        client.close()
+    }
+})
+
 export default router
