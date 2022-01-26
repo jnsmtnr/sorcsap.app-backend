@@ -28,14 +28,25 @@ router.get('/', auth, isAdmin, async function (req, res) {
 router.post('/', auth, async function (req, res) {
     const client = getClient()
 
-    const userId = new ObjectId(req.user.id)
     const name = req.body.name
     const brewery = req.body.brewery
     const type = req.body.type
     const alc = req.body.alc
     const rating = req.body.rating
 
+    if (
+        !name || typeof name !== 'string' || name.length > 64 ||
+        typeof brewery !== 'string' || brewery.length > 64 ||
+        typeof alc !== 'number' || alc > 100 ||
+        typeof type !== 'string' || type.length > 64 ||
+        !rating || typeof rating !== 'number' || rating < 1 || rating > 5
+    ) {
+        return res.sendStatus(400)
+    }
+
     try {
+        const userId = new ObjectId(req.user.id)
+
         await client.connect()
 
         const beers = client.db().collection('beers')
