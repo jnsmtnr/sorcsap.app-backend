@@ -8,11 +8,17 @@ const router = Router()
 router.post('/', auth, async function (req, res) {
     const client = getClient()
 
-    const userId = new ObjectId(req.user.id)
-    const beerId = new ObjectId(req.body.beerId)
+    let beerId = req.body.beerId
     const beerRating = req.body.rating
 
+    if (typeof beerId !== 'string' || typeof beerRating !== 'number' || beerRating > 5 || beerRating < 1) {
+        return res.sendStatus(400)
+    }
+
     try {
+        const userId = new ObjectId(req.user.id)
+        beerId = new ObjectId(req.body.beerId)
+
         await client.connect()
 
         const ratings = client.db().collection('ratings')
@@ -36,11 +42,16 @@ router.post('/', auth, async function (req, res) {
 router.patch('/:id', auth, async function (req, res) {
     const client = getClient()
 
-    const userId = new ObjectId(req.user.id)
-    const id = new ObjectId(req.params.id)
     const { rating } = req.body
 
+    if (typeof rating !== 'number' || rating > 5 || rating < 1) {
+        return res.sendStatus(400)
+    }
+
     try {
+        const userId = new ObjectId(req.user.id)
+        const id = new ObjectId(req.params.id)
+        
         await client.connect()
 
         const ratings = client.db().collection('ratings')
@@ -60,10 +71,10 @@ router.patch('/:id', auth, async function (req, res) {
 router.delete('/:id', auth, async function (req, res) {
     const client = getClient()
 
-    const id = new ObjectId(req.params.id)
-    const userId = new ObjectId(req.user.id)
-
     try {
+        const id = new ObjectId(req.params.id)
+        const userId = new ObjectId(req.user.id)
+
         await client.connect()
 
         const ratings = client.db().collection('ratings')
@@ -83,9 +94,9 @@ router.delete('/:id', auth, async function (req, res) {
 router.get('/', auth, async function (req, res) {
     const client = getClient()
 
-    const userId = new ObjectId(req.user.id)
-
     try {
+        const userId = new ObjectId(req.user.id)
+
         await client.connect()
 
         const ratings = client.db().collection('ratings')

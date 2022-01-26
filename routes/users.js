@@ -22,12 +22,12 @@ router.post('/signup', async function (req, res) {
 
     try {
         // validate email
-        if (!(req.body && req.body.email && req.body.email.includes('@') && req.body.email.includes('.'))) {
+        if (!(req.body && req.body.email && typeof req.body.email === 'string' && req.body.email.includes('@') && req.body.email.includes('.') && req.body.email.length <= 64)) {
             throw new Error('Invalid e-mail address')
         }
 
         // validate password
-        if (!(req.body && req.body.password && req.body.password.length >= 8)) {
+        if (!(req.body && req.body.password && typeof req.body.password === 'string' && req.body.password.length >= 8 && req.body.password.length <= 64)) {
             throw new Error('Password must be at least 8 characters long')
         }
 
@@ -64,8 +64,8 @@ router.post('/login', async function (req, res) {
 
     try {
         if (
-            !(req.body && req.body.email && req.body.email.includes('@') && req.body.email.includes('.'))
-            || !(req.body && req.body.password && req.body.password.length >= 8)
+            !(req.body && req.body.email && typeof req.body.email === 'string' && req.body.email.includes('@') && req.body.email.includes('.') && req.body.email.length <= 64)
+            || !(req.body && req.body.password && typeof req.body.password === 'string' && req.body.password.length >= 8 && req.body.password.length <= 64)
         ) {
             throw new Error('Invalid e-mail address or password')
         }
