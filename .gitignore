@@ -1,5 +1,5 @@
 /node_modules
-*.json
+config.json
 copy_db.js
 .env
 .vercel
