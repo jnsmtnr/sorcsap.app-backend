@@ -1,5 +1,5 @@
 import getClient from '../../mongodb.js'
-import auth from '../../middleware/_auth.js'
+import auth from '../../auth.js'
 
 export default async function(req, res) {
     if (req.method === 'OPTIONS') {
