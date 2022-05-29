@@ -54,14 +54,16 @@ export default async function (req, res) {
 
             const rating = await ratings.findOne({ beerId, userId })
 
-            if (rating) throw new Error('Rating already exists')
+            if (rating) {
+                return res.status(409).send({ message: 'Rating already exits', rating: rating.rating })
+            }
 
             await ratings.insertOne({ beerId, userId, rating: beerRating })
 
             res.status(201).send()
         }
         catch (error) {
-            res.status(400).send({ message: error.message })
+            res.status(500).send({ message: error.message })
         }
         finally {
             client.close()
