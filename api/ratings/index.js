@@ -55,7 +55,7 @@ export default async function (req, res) {
             const rating = await ratings.findOne({ beerId, userId })
 
             if (rating) {
-                return res.status(409).send({ message: 'Rating already exits', rating: rating.rating })
+                return res.status(409).send({ message: 'Rating already exits', id: rating._id.toString(), rating: rating.rating })
             }
 
             await ratings.insertOne({ beerId, userId, rating: beerRating })
