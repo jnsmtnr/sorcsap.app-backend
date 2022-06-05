@@ -1,7 +1,9 @@
-import getClient from '../../mongodb.js'
-import auth from '../../auth.js'
+import { VercelResponse } from '@vercel/node'
+import getClient from '../../mongodb'
+import auth from '../../auth'
+import { Request } from '../../types';
 
-export default async function(req, res) {
+export default async function(req: Request, res: VercelResponse) {
     if (req.method === 'OPTIONS') {
         return res.status(200).json(({
             body: "OK"
@@ -33,8 +35,8 @@ export default async function(req, res) {
 
         res.send(allUsers)
     }
-    catch (error) {
-        res.status(401).send({ message: error.message })
+    catch (e: any) {
+        res.status(401).send({ message: e.message })
     }
     finally {
         client.close()

@@ -1,7 +1,10 @@
-import getClient from '../../mongodb.js'
-import auth from '../../auth.js'
+import { VercelResponse } from '@vercel/node'
+import getClient from '../../mongodb'
+import auth from '../../auth'
 
-export default async function (req, res) {
+import { Request } from '../../types'
+
+export default async function (req: Request, res: VercelResponse) {
     if (req.method === 'OPTIONS') return res.status(200).json({ body: "OK" })
 
     if (req.method !== 'GET' && req.method !== 'POST') return res.status(404).send('not found')
@@ -20,8 +23,8 @@ export default async function (req, res) {
 
             res.send(allBeers)
         }
-        catch (error) {
-            res.status(401).send({ message: error.message })
+        catch (e: any) {
+            res.status(401).send({ message: e.message })
         }
         finally {
             client.close()
@@ -42,10 +45,10 @@ export default async function (req, res) {
 
             await beers.insertOne({ name, brewery, alc, type })
 
-            res.status(201).send()
+            res.status(201).send('ok')
         }
-        catch (error) {
-            res.status(401).send({ message: error.message })
+        catch (e: any) {
+            res.status(401).send({ message: e.message })
         }
         finally {
             client.close()

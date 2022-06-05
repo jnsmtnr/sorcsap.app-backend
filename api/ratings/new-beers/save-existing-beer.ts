@@ -1,9 +1,11 @@
+import { VercelResponse } from '@vercel/node'
 import { ObjectId } from 'mongodb'
 
-import getClient from '../../../mongodb.js'
-import auth from '../../../auth.js'
+import getClient from '../../../mongodb'
+import auth from '../../../auth'
+import { Request } from '../../../types'
 
-export default async function (req, res) {
+export default async function (req: Request, res: VercelResponse) {
     if (req.method === 'OPTIONS') return res.status(200).json({ body: "OK" })
 
     if (req.method !== 'POST') return res.status(404).send('not found')
@@ -12,7 +14,7 @@ export default async function (req, res) {
 
     const client = getClient()
 
-    const { beerId, ratingIds } = req.body
+    const { beerId, ratingIds } = req.body as { beerId: string, ratingIds: string[] }
 
     try {
         await client.connect()
@@ -27,10 +29,10 @@ export default async function (req, res) {
             }
         )
 
-        res.status(201).send()
+        res.status(201).send('ok')
     }
-    catch (error) {
-        res.status(500).send({ message: error.message })
+    catch (e: any) {
+        res.status(500).send({ message: e.message })
     }
     finally {
         client.close()

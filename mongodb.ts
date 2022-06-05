@@ -6,8 +6,5 @@ const database = process.env.MONGO_DATABASE
 const uri = `mongodb+srv://admin:${password}@cluster0.jwoag.mongodb.net/${database}?retryWrites=true&w=majority`
 
 export default function getClient() {
-    return new MongoClient(uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
+    return new MongoClient(uri)
 }
