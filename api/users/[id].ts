@@ -1,10 +1,12 @@
+import { VercelResponse } from '@vercel/node'
 import bcrypt from 'bcrypt'
 import { ObjectId } from 'mongodb'
 
-import getClient from '../../mongodb.js'
-import auth from '../../auth.js'
+import getClient from '../../mongodb'
+import auth from '../../auth'
+import { Request } from '../../types'
 
-export default async function(req, res) {
+export default async function(req: Request, res: VercelResponse) {
     if (req.method === 'OPTIONS') {
         return res.status(200).json(({
             body: "OK"
@@ -23,8 +25,8 @@ export default async function(req, res) {
 
             const users = client.db().collection('users')
 
-            const setObject = {}
-            const unsetObject = {}
+            const setObject: any = {}
+            const unsetObject: any = {}
 
             if (req.body.email) {
                 setObject.email = req.body.email
@@ -42,12 +44,12 @@ export default async function(req, res) {
                 unsetObject.admin = ''
             }
 
-            await users.updateOne({ _id: new ObjectId(req.query.id) }, { $set: setObject, $unset: unsetObject })
+            await users.updateOne({ _id: new ObjectId(req.query.id as string) }, { $set: setObject, $unset: unsetObject })
 
-            res.status(201).send()
+            res.status(201).send('ok')
         }
-        catch (error) {
-            res.status(500).send({ message: error.message })
+        catch (e: any) {
+            res.status(500).send({ message: e.message })
         }
         finally {
             client.close()
@@ -62,16 +64,16 @@ export default async function(req, res) {
 
             const ratings = client.db().collection('ratings')
 
-            await ratings.deleteMany({ userId: new ObjectId(req.query.id) })
+            await ratings.deleteMany({ userId: new ObjectId(req.query.id as string) })
 
             const users = client.db().collection('users')
 
-            await users.deleteOne({ _id: new ObjectId(req.query.id) })
+            await users.deleteOne({ _id: new ObjectId(req.query.id as string) })
 
-            res.status(201).send()
+            res.status(201).send('ok')
         }
-        catch (error) {
-            res.status(500).send({ message: error.message })
+        catch (e: any) {
+            res.status(500).send({ message: e.message })
         }
         finally {
             client.close()

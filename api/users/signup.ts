@@ -1,9 +1,11 @@
+import { VercelResponse } from '@vercel/node'
 import bcrypt from 'bcrypt'
 
-import getClient from '../../mongodb.js'
-import signToken  from './_signToken.js'
+import getClient from '../../mongodb'
+import { Request } from '../../types'
+import signToken  from './_signToken'
 
-export default async function(req, res) {
+export default async function(req: Request, res: VercelResponse) {
     if (req.method === 'OPTIONS') {
         return res.status(200).json(({
             body: "OK"
@@ -45,8 +47,8 @@ export default async function(req, res) {
         const token = signToken(insertedId.toString(), email)
         res.status(201).send({ message: 'Signup successful', token })
     }
-    catch (error) {
-        res.status(400).send({ message: error.message })
+    catch (e: any) {
+        res.status(400).send({ message: e.message })
     }
     finally {
         client.close()

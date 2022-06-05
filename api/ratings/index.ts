@@ -1,9 +1,11 @@
+import { VercelResponse } from '@vercel/node'
 import { ObjectId } from 'mongodb'
 
-import getClient from '../../mongodb.js'
-import auth from '../../auth.js'
+import getClient from '../../mongodb'
+import auth from '../../auth'
+import { Request } from '../../types'
 
-export default async function (req, res) {
+export default async function (req: Request, res: VercelResponse) {
     if (req.method === 'OPTIONS') return res.status(200).json({ body: "OK" })
 
     if (req.method !== 'GET' && req.method !== 'POST') return res.status(404).send('not found')
@@ -24,8 +26,8 @@ export default async function (req, res) {
 
             res.status(200).send(userRatings)
         }
-        catch (error) {
-            res.status(400).send({ message: error.message })
+        catch (e: any) {
+            res.status(400).send({ message: e.message })
         }
         finally {
             client.close()
@@ -41,7 +43,7 @@ export default async function (req, res) {
         const beerRating = req.body.rating
 
         if (typeof beerId !== 'string' || typeof beerRating !== 'number' || beerRating > 5 || beerRating < 1) {
-            return res.status(400).send()
+            return res.status(400).send('ok')
         }
 
         try {
@@ -60,10 +62,10 @@ export default async function (req, res) {
 
             await ratings.insertOne({ beerId, userId, rating: beerRating })
 
-            res.status(201).send()
+            res.status(201).send('ok')
         }
-        catch (error) {
-            res.status(500).send({ message: error.message })
+        catch (e: any) {
+            res.status(500).send({ message: e.message })
         }
         finally {
             client.close()

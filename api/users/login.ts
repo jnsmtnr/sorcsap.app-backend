@@ -1,9 +1,11 @@
+import { VercelResponse } from '@vercel/node'
 import bcrypt from 'bcrypt'
 
-import getClient from '../../mongodb.js'
-import signToken  from './_signToken.js'
+import getClient from '../../mongodb'
+import { Request } from '../../types';
+import signToken  from './_signToken'
 
-export default async function(req, res) {
+export default async function(req: Request, res: VercelResponse) {
     if (req.method === 'OPTIONS') {
         return res.status(200).json(({
             body: "OK"
@@ -36,7 +38,7 @@ export default async function(req, res) {
 
         if (await bcrypt.compare(req.body.password, user.password)) {
             const token = signToken(user._id.toString(), user.email, user.admin)
-            const response = {
+            const response: any = {
                 message: 'Password is correct',
                 token
             }
@@ -48,8 +50,8 @@ export default async function(req, res) {
             throw new Error('Invalid e-mail address or password')
         }
     }
-    catch (error) {
-        res.status(401).send({ message: error.message })
+    catch (e: any) {
+        res.status(401).send({ message: e.message })
     }
     finally {
         client.close()

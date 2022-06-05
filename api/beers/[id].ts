@@ -1,9 +1,12 @@
+import { VercelResponse } from '@vercel/node'
 import { ObjectId } from 'mongodb'
 
-import getClient from '../../mongodb.js'
-import auth from '../../auth.js'
+import getClient from '../../mongodb'
+import auth from '../../auth'
 
-export default async function (req, res) {
+import { Request } from '../../types'
+
+export default async function (req: Request, res: VercelResponse) {
     if (req.method === 'OPTIONS') return res.status(200).json({ body: "OK" })
 
     if (req.method !== 'DELETE' && req.method !== 'PATCH') return res.status(404).send('not found')
@@ -20,12 +23,12 @@ export default async function (req, res) {
 
             const beers = client.db().collection('beers')
 
-            await beers.deleteOne({ _id: new ObjectId(id) })
+            await beers.deleteOne({ _id: new ObjectId(id as string) })
 
-            res.status(201).send()
+            res.status(201).send('ok')
         }
-        catch {
-            res.status(401).send({ message: error.message })
+        catch (e: any) {
+            res.status(401).send({ message: e.message })
         }
         finally {
             client.close()
@@ -40,7 +43,7 @@ export default async function (req, res) {
         const { id } = req.query
         const { name, brewery, type, alc } = req.body
 
-        const setObject = {}
+        const setObject: { name?: string, brewery?: string, type?: string, alc?: number } = {}
 
         if (name) {
             setObject.name = name
@@ -60,12 +63,12 @@ export default async function (req, res) {
 
             const beers = client.db().collection('beers')
 
-            await beers.updateOne({ _id: new ObjectId(id) }, { $set: setObject })
+            await beers.updateOne({ _id: new ObjectId(id as string) }, { $set: setObject })
 
-            res.status(201).send()
+            res.status(201).send('ok')
         }
-        catch {
-            res.status(401).send({ message: error.message })
+        catch(e: any) {
+            res.status(401).send({ message: e.message })
         }
         finally {
             client.close
